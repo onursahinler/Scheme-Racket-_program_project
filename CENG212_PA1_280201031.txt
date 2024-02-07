@@ -1,0 +1,89 @@
+; The lambda definitions.
+(define (lambda1 x) (* x x))
+(define (lambda2) "I am a simple lambda function which only prints to screen :)")
+
+; The ordinal definitions of relationships in part-1.
+(define cons7 (cons "Adil" "Burak"))
+(define cons19 (cons "Hüseyin" "Samet"))
+(define list3 (list cons19 null "Dilek" "Altuğ"))
+(define cons6 (cons cons7 list3))
+(define cons15 (cons 1923 "Güliz"))
+(define cons13 (cons cons15 "Nuri"))
+(define cons16 (cons null lambda2))
+(define cons14 (cons "Eren" cons16))
+(define cons12 (cons cons13 cons14))
+(define cons18 (cons "Serhat" cons12))
+(define cons17 (cons "Büşra" cons18))
+(define list2 (list "Didem" lambda1 cons17))
+(define list1 (list "Cansu" "Ege" cons12 list2))
+(define cons5 (cons cons6 list1))
+(define cons4 (cons 1992 cons5))
+(define cons3 (cons 3 cons4))
+(define cons1 (cons cons3 cons3))
+(define cons11 (cons "Ersin" 7))
+(define cons10 (cons cons7 cons11))
+(define cons9 (cons cons10 "Didem"))
+(define cons8 (cons cons9 lambda1))
+(define cons2 (cons cons4 cons8))
+(define head (cons cons1 cons2))
+
+; The methods needed for myproc.
+(define encountered '())
+(define (appendEncountered element)
+  (set! encountered (append encountered (list element)))
+  encountered)
+
+; The myproc define I used in part-3.
+(define (myproc v1 v2 v3)
+    (cond 
+        ((pair? v1) 
+            (myproc (cdr v1) v2 v3) 
+            (myproc (car v1) v2 v3)
+        ) 
+        ((list? v1) 
+            (map 
+                (lambda (item) (myproc item v2 v3))
+                (reverse v1)
+            )
+        )
+        (else 
+            (if (not (member v1 encountered)) 
+                (cond 
+                    ((or (string? v1) (number? v1))
+                        (appendEncountered v1)
+                        (if (v2 v1) (v3 v1) (void))
+                    )
+                    ((procedure? v1) 
+                        (appendEncountered v1)
+                        (if (v2 v1) (v3 v1) (void))
+                    )
+                )
+            (void))
+        )
+    )
+)
+
+; I wrote a statement that prints the elements of types of String, Number, and Lambda functions in part-1.
+(myproc head (lambda (x) (or (string? x) (number? x) (procedure? x))) displayln)
+
+; I wrote a statement that prints all prime numbers in part-1.
+(define (prime? n)
+  (and (number? n)
+       (if (< n 2)
+           #f
+           (let loop ((i 2))
+             (cond
+               ((> i (sqrt n)) #t)
+               ((= 0 (modulo n i)) #f)
+               (else (loop (+ i 1))))))))
+(myproc head prime? (lambda (x) (begin (display x) (newline))))      
+
+; I wrote a statement that prints the elements of type String whose sizes are greater than 5 in part-1.
+(myproc head (lambda (x) (and (string? x) (> (string-length x) 5))) displayln)
+
+; I wrote a statement that calls Lambda functions which takes one parameter with Number 17 and result on the screen.
+(myproc head (lambda (x) (and (procedure? x) (= (procedure-arity x) 1))) (lambda (x) (displayln (x 17))))
+
+; I wrote a statement that calls Lambda functions which takes no parameters and result on the screen.
+(myproc head (lambda (x) (and (procedure? x) (= (procedure-arity x) 0))) (lambda (x) (displayln (x))))
+
